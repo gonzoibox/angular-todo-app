@@ -42,7 +42,7 @@ export class TodoListComponent implements OnInit {
   onUpdateTitle(newTitle): void {
     if(this.titleList.length === 0) {
       this.httpClient.post<Title>(
-        'https://ruby-garage-todo-app.herokuapp.com/rest/title',
+        'https://nestjs-todo-app.herokuapp.com/rest/title',
         {
          title: newTitle
         }
@@ -54,7 +54,7 @@ export class TodoListComponent implements OnInit {
         this.onEditTitle();
     } else {
       this.httpClient.patch<Title>(
-        'https://ruby-garage-todo-app.herokuapp.com/rest/title/' + this.titleId,
+        'https://nestjs-todo-app.herokuapp.com/rest/title/' + this.titleId,
         {
          title: newTitle
         }
@@ -68,7 +68,7 @@ export class TodoListComponent implements OnInit {
   onDeleteTitle(): void {
     if(this.titleList.length !== 0)
     this.httpClient.delete<void>(
-      'https://ruby-garage-todo-app.herokuapp.com/rest/title/' + this.titleId
+      'https://nestjs-todo-app.herokuapp.com/rest/title/' + this.titleId
     ).subscribe(() => {
         this.titleList = [];
         this.title = '';
@@ -88,7 +88,7 @@ export class TodoListComponent implements OnInit {
   onUpdateTodo(todoId, todoIndex): void {
     if(this.changedTodo) {
       this.httpClient.patch<Todo>(
-        'https://ruby-garage-todo-app.herokuapp.com/rest/todo/' + todoId,
+        'https://nestjs-todo-app.herokuapp.com/rest/todo/' + todoId,
         {
          todo: this.changedTodo
         }
@@ -104,7 +104,7 @@ export class TodoListComponent implements OnInit {
   onCreateTodo(): void {
     if(this.todo) {
       this.httpClient.post<Todo>(
-        'https://ruby-garage-todo-app.herokuapp.com/rest/todo/',
+        'https://nestjs-todo-app.herokuapp.com/rest/todo/',
         {
          todo: this.todo
         }
@@ -117,7 +117,7 @@ export class TodoListComponent implements OnInit {
 
   onRemoveTodo(todoOnDelete: Todo) {
     this.httpClient.delete<void>(
-      'https://ruby-garage-todo-app.herokuapp.com/rest/todo/' + todoOnDelete.id
+      'https://nestjs-todo-app.herokuapp.com/rest/todo/' + todoOnDelete.id
     ).subscribe(() => {
         this.todoList = this.todoList.filter(todo => todo.id !== todoOnDelete.id);
       });
@@ -125,7 +125,7 @@ export class TodoListComponent implements OnInit {
 
   onComplete(todoOnComplete: Todo) {
     this.httpClient.patch<Todo>(
-      'https://ruby-garage-todo-app.herokuapp.com/rest/todo/' + todoOnComplete.id,
+      'https://nestjs-todo-app.herokuapp.com/rest/todo/' + todoOnComplete.id,
       {
         todo: todoOnComplete.todo,
         isCompleted: !todoOnComplete.isCompleted
@@ -136,12 +136,12 @@ export class TodoListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.httpClient.get<Todo[]>('https://ruby-garage-todo-app.herokuapp.com/rest/todo/')
+    this.httpClient.get<Todo[]>('https://nestjs-todo-app.herokuapp.com/rest/todo/')
     .subscribe( todoList => {
       this.todoList = todoList;
       console.log(this.todoList);
     });
-    this.httpClient.get<Title[]>('https://ruby-garage-todo-app.herokuapp.com/rest/title/')
+    this.httpClient.get<Title[]>('https://nestjs-todo-app.herokuapp.com/rest/title/')
     .subscribe( title => {
       this.titleList = title;
       title.forEach(id => {this.titleId = id.id});
