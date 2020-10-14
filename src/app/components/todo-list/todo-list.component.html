@@ -1,0 +1,86 @@
+<div class="todo-list">
+  <div class="todo-list___header" (clickOutside)="cancelEditTitle()">
+    <div class="todo-list___header-calendar">
+      <div class="todo-list___header-calendar--icon">
+        <svg class="icon">
+          <use xlink:href="../assets/icons/sprite.svg#icon-calendar"></use>
+        </svg>
+      </div>
+      <div *ngIf="!editTitleState" class="todo-list___header-calendar-list-name">{{ title }}</div>
+      <form action="#" (ngSubmit)="onUpdateTitle(newTitle)" *ngIf="editTitleState" class="todo-list___header-calendar-list-name--form">
+        <input id="list-name" class="todo-list___header-calendar-list-name--form--input" [(ngModel)]="newTitle" [ngModelOptions]="{standalone: true}"
+        type="text">
+        <button type="submit">OK</button>
+        <button (click)="onEditTitle()" type="button">NO</button>
+      </form>
+    </div>
+    <div class="todo-list___header-controls">
+      <span class="todo-list___header-controls--edit">
+        <label for="list-name">
+          <svg (click)="onEditTitle()" class="icon">
+           <use xlink:href="../assets/icons/sprite.svg#icon-pencil1"></use>
+          </svg>
+        </label>
+      </span>
+      <span class="todo-list___header-controls--delete">
+        <svg (click)="onDeleteTitle()" class="icon">
+          <use xlink:href="../assets/icons/sprite.svg#icon-bin"></use>
+        </svg>
+      </span>
+    </div>
+  </div>
+
+  <div class="todo-list__input">
+    <label for="add-todo">
+      <span class="todo-list__input--plus">
+        <svg class="icon">
+          <use xlink:href="../assets/icons/sprite.svg#icon-plus"></use>
+        </svg>
+      </span>
+    </label>
+    <form (ngSubmit)="onCreateTodo()" action="#" class="todo-list__input--form">
+      <input [(ngModel)]="todo" id="add-todo" [ngModelOptions]="{standalone: true}" type="text" class="todo-list__input--form--input-todo" placeholder="Start typing here to create a task...">
+      <button [disabled]="!todo" type="submit" class="todo-list__input--form--add-button">Add Task</button>
+    </form>
+  </div>
+
+  <ul cdkDropList (cdkDropListDropped)="drop($event)" class="todo-list__tasks" (clickOutside)="offEditTodo()">
+    <li cdkDrag *ngFor="let item of todoList; let i = index" class="todo-list__tasks-item">
+      <div class="todo-list__tasks-item--todo">
+        <input class="checkbox" 
+        type="checkbox" 
+        name="isCompleted" 
+        (change)="onComplete(item)"
+        [checked]="item.isCompleted">
+        <span *ngIf="!item.isCompleted">{{ item.todo }}</span>
+        <span *ngIf="item.isCompleted"><del>{{ item.todo }}</del></span>
+        <form action="#" (ngSubmit)="onUpdateTodo(item.id, i)" *ngIf="editTodoState && i === editableTodoId" class="todo-list__tasks-item--todo--form">
+          <input id="{{ i }}" class="todo-input" [(ngModel)]="changedTodo" [ngModelOptions]="{standalone: true}"
+          type="text">
+          <button type="submit">OK</button>
+          <button (click)="offEditTodo()" type="button">NO</button>
+        </form>
+      </div>
+      
+      <div class="todo-list__tasks-controls">
+        <span class="todo-list__tasks-controls--move">
+          <svg class="icon" viewBox="0 0 20 20" width="20" height="20">
+            <use xlink:href="../assets/icons/sprite.svg#icon-menu2"></use>
+          </svg>
+        </span>
+        <label for="{{ i }}">
+          <span class="todo-list__tasks-controls--edit">
+              <svg (click)="onEditTodo(i)" class="icon" viewBox="0 0 20 20" width="20" height="20">
+                <use xlink:href="../assets/icons/sprite.svg#icon-pencil1"></use>
+              </svg>
+          </span>
+        </label>
+        <span (click)="onRemoveTodo(item)" class="todo-list__tasks-controls--delete">
+          <svg class="icon" viewBox="0 0 20 20" width="20" height="20">
+            <use xlink:href="../assets/icons/sprite.svg#icon-bin"></use>
+          </svg>
+        </span>
+      </div>
+    </li>
+  </ul>
+</div>
