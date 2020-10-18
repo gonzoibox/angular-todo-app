@@ -12,18 +12,43 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 export class TodoListComponent implements OnInit {
   public todoList: Todo[];
   public todo = '';
+  public todoPosition: number;
+  public todoPrevPos: number;
+  public todoNextPos: number;
+
   public changedTodo = '';
+
   public titleList: Title[];
   public title = '';
   public newTitle = '';
   public titleId: number;
+
   public editTitleState = false;
   public editTodoState = false;
   public editableTodoId: number;
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.todoList, event.previousIndex, event.currentIndex);
-    console.log(event.previousIndex, event.currentIndex);
+    this.todoPrevPos = event.previousIndex;
+    this.todoNextPos = event.currentIndex;
+    let todoPrevId = this.todoList[this.todoPrevPos].id;
+    let todoNextId = this.todoList[this.todoNextPos].id;
+
+    this.httpClient.patch<Todo>(
+      'https://nestjs-todo-app.herokuapp.com/rest/todo/' + todoPrevId,
+      {
+       todo: this.todoList[this.todoPrevPos].todo,
+       position: this.todoPrevPos
+      }
+    ).subscribe();
+
+    this.httpClient.patch<Todo>(
+      'https://nestjs-todo-app.herokuapp.com/rest/todo/' + todoNextId,
+      {
+        todo: this.todoList[this.todoNextPos].todo,
+        position: this.todoNextPos
+      }
+    ).subscribe();
   }
 
   private httpClient: HttpClient;
@@ -103,15 +128,26 @@ export class TodoListComponent implements OnInit {
 
   onCreateTodo(): void {
     if(this.todo) {
-      this.httpClient.post<Todo>(
-        'https://nestjs-todo-app.herokuapp.com/rest/todo/',
-        {
-         todo: this.todo
-        }
-      ).subscribe(todo => {
-          this.todoList.push(todo);
-        });
-        this.todo = '';
+        this.httpClient.post<Todo>(
+          'https://nestjs-todo-app.herokuapp.com/rest/todo/',
+          {
+           todo: this.todo,
+           position: this.todoPosition
+          }
+        ).subscribe(todo => {
+            this.todoList.push(todo);
+            this.todoPosition++;
+          });
+          this.todo = '';
+          for (let i = 0; i < this.todoList.length; i++) {
+            this.httpClient.patch<void>(
+              'https://nestjs-todo-app.herokuapp.com/rest/todo/' + this.todoList[i].id,
+              {
+                todo: this.todoList[i].todo,
+                position: this.todoList[i].position
+              }
+            ).subscribe();
+          }
     }
   }
 
@@ -120,6 +156,22 @@ export class TodoListComponent implements OnInit {
       'https://nestjs-todo-app.herokuapp.com/rest/todo/' + todoOnDelete.id
     ).subscribe(() => {
         this.todoList = this.todoList.filter(todo => todo.id !== todoOnDelete.id);
+        this.todoList = this.todoList.map(item => {
+         return {
+           ...item,
+           position: this.todoList.indexOf(item)
+         }
+        });
+        this.todoPosition = this.todoPosition - 1;
+        for (let i = 0; i < this.todoList.length; i++) {
+          this.httpClient.patch<void>(
+            'https://nestjs-todo-app.herokuapp.com/rest/todo/' + this.todoList[i].id,
+            {
+              todo: this.todoList[i].todo,
+              position: this.todoList[i].position
+            }
+          ).subscribe();
+        }
       });
   }
 
@@ -136,17 +188,24 @@ export class TodoListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.httpClient.get<Todo[]>('https://nestjs-todo-app.herokuapp.com/rest/todo/')
-    .subscribe( todoList => {
-      this.todoList = todoList;
-      console.log(this.todoList);
-    });
+    //GET title
     this.httpClient.get<Title[]>('https://nestjs-todo-app.herokuapp.com/rest/title/')
     .subscribe( title => {
       this.titleList = title;
       title.forEach(id => {this.titleId = id.id});
       title.forEach(title => {this.title = title.title});
-      console.log(this.titleList);
+    });
+
+    //GET todo
+    this.httpClient.get<Todo[]>('https://nestjs-todo-app.herokuapp.com/rest/todo/')
+    .subscribe( todoList => {
+     this.todoList = todoList;
+     this.todoList.sort((a,b)=> (a.position < b.position) ? -1: ((b.position > a.position) ? 1 : 0)); 
+     if(this.todoList.length !== 0) {
+      this.todoPosition = this.todoList.length;
+     } else {
+      this.todoPosition = 0;
+     }
     });
   }
 }
