@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Todo } from '../todo-list/models/todo';
 import { Title } from '../todo-list/models/title';
@@ -10,6 +10,8 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
   styleUrls: ['./todo-list.component.scss']
 })
 export class TodoListComponent implements OnInit {
+  @Output() listState = new EventEmitter<boolean>();
+
   public todoList: Todo[];
   public todo = '';
   public todoPosition: number;
@@ -90,14 +92,25 @@ export class TodoListComponent implements OnInit {
     }
   }
 
-  onDeleteTitle(): void {
-    if(this.titleList.length !== 0)
-    this.httpClient.delete<void>(
-      'https://nestjs-todo-app.herokuapp.com/rest/title/' + this.titleId
-    ).subscribe(() => {
-        this.titleList = [];
-        this.title = '';
-      });
+  onDeleteList(): void {
+    if(this.titleList.length !== 0) {
+      this.httpClient.delete<void>(
+        'https://nestjs-todo-app.herokuapp.com/rest/title/' + this.titleId
+      ).subscribe();
+
+    this.listState.emit(true);
+    }
+  
+    if(this.todoList.length !== 0) {
+      this.todoList.forEach(item => {
+        this.httpClient.delete<void>(
+          'https://nestjs-todo-app.herokuapp.com/rest/todo/' + item.id
+        ).subscribe();
+      })
+      
+    this.listState.emit(true);
+    }
+    
   }
 
   onEditTodo(todoId: number) {
