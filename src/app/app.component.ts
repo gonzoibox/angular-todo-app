@@ -35,7 +35,6 @@ export class AppComponent implements OnInit {
       } else {
         this.title = false;
       }
-      console.log('title',this.title);
      });
 
      //GET todo
@@ -46,7 +45,6 @@ export class AppComponent implements OnInit {
       } else {
         this.todo = false;
       }
-      console.log('todo',this.todo);
     });
   }
 }

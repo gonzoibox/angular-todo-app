@@ -1,5 +1,5 @@
 
-<div *ngIf="(todo === false) && (title === false) && todoListButtonState" class="add-todo-list">
+<div *ngIf="((todo === false) && (title === false) && todoListButtonState) || todoListState" class="add-todo-list">
     <button (click)="addTodoList()" type="button">
         <label for="add-todo">
             <span class="todo-list__input--plus">
@@ -13,9 +13,9 @@
 </div>
 
 <app-todo-list 
-    *ngIf="((todo === true) ||
+    *ngIf="(((todo === true) ||
     (title === true)) ||
-    !todoListButtonState"
+    !todoListButtonState) && !todoListState"
     (listState)=" addTodoList($event)"
 >
 </app-todo-list>

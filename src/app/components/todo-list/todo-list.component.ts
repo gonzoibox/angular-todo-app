@@ -93,24 +93,20 @@ export class TodoListComponent implements OnInit {
   }
 
   onDeleteList(): void {
-    if(this.titleList.length !== 0) {
+    if(this.titleList.length > 0) {
       this.httpClient.delete<void>(
         'https://nestjs-todo-app.herokuapp.com/rest/title/' + this.titleId
       ).subscribe();
-
-    this.listState.emit(true);
-    }
+    } 
   
-    if(this.todoList.length !== 0) {
+    if(this.todoList.length > 0) {
       this.todoList.forEach(item => {
         this.httpClient.delete<void>(
           'https://nestjs-todo-app.herokuapp.com/rest/todo/' + item.id
         ).subscribe();
       })
-      
+    } 
     this.listState.emit(true);
-    }
-    
   }
 
   onEditTodo(todoId: number) {
